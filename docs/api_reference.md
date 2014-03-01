@@ -5,7 +5,10 @@ You can send the parameters as URL parameters, like the example above, or as an 
 
 # Responses
 
-All responses will be JSON objects with the following two fields
+All responses will be JSON objects with the two fields:
+
+* success (boolean)
+* result (array or error message)
 
 
 # Paths
@@ -21,25 +24,23 @@ Will retrieve cars that match the query parameters given.
 
 Possible parameter keys:
 
-  - class*
-  - co2_emissions_min
-  - co2_emissions_max
-  - cylinders
-  - engine_size_min
-  - engine_size_max
-  - fuel_city_min
-  - fuel_city_max
-  - fuel_highway_min
-  - fuel_highway_max
-  - fuel_type*
-  - manufacturer*
-  - model*
-  - transmission*
-  - year
-  - yearMin
-  - yearMax
-
-*_can be an array of values._
+  - class (string or array of strings)
+  - co2_emissions_min (integer)
+  - co2_emissions_max (integer)
+  - cylinders (integer)
+  - engine_size_min (number)
+  - engine_size_max (number)
+  - fuel_city_min (number)
+  - fuel_city_max (number)
+  - fuel_highway_min (number)
+  - fuel_highway_max (number)
+  - fuel_type (string or array of strings)
+  - manufacturer (string or array of strings)
+  - model (string or array of strings)
+  - transmission (string or array of strings)
+  - year (integer)
+  - year_min (integer)
+  - year_max (integer)
 
 
 ####/fuel/list?key=(parameterName)

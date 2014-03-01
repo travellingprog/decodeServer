@@ -53,7 +53,9 @@ app.use(allowCrossDomain);
 
 app.get('/users', user.list);
 
-app.get('/fuel/all', fuel.getAllData);
+app.get('/fuel/all', fuel.getAllCars);
+app.get('/fuel/cars', fuel.getCars);
+app.get('/fuel/list', fuel.getList);
 
 
 
