@@ -3,13 +3,17 @@
  * Module dependencies.
  */
 
-var express = require('express')
-  , routes = require('./routes')
-  , user = require('./routes/user')
-  , http = require('http')
-  , path = require('path');
+var express = require('express'),
+    fuel = require('./controllers/fuel'),
+    user = require('./controllers/user'),
+    http = require('http'),
+    path = require('path');
 
 var app = express();
+
+/**
+ * Middleware
+ */
 
 app.configure(function(){
   app.set('port', process.env.PORT || 3000);
@@ -28,22 +32,30 @@ app.configure('development', function(){
 });
 
 var allowCrossDomain = function(req, res, next) {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
-    // intercept OPTIONS method
-    if ('OPTIONS' == req.method) {
-      res.send(200);
-    }
-    else {
-      next();
-    }
+  // intercept OPTIONS method
+  if ('OPTIONS' == req.method) {
+    res.send(200);
+  }
+  else {
+    next();
+  }
 };
 app.use(allowCrossDomain);
 
-app.get('/', routes.index);
+
+/**
+ * Routes
+ */
+
 app.get('/users', user.list);
+
+app.get('/fuel/all', fuel.getAllData);
+
+
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));
