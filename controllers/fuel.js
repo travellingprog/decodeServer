@@ -33,21 +33,28 @@ exports.getAllCars = function(req, res){
 };
 
 exports.getCars = function(req, res) {
-  var cars = mockAllCars();
-  var query = buildQuery(req);
+  console.log('getCars');
+
+  var cars = mockAllCars().result;
+  var query = buildQuery(req, res);
+  if (!query) return;
   var qResult = runQuery(query, cars);
+  console.log('qResult', qResult);
   res.json({success: true, result: qResult});
 };
 
 
 exports.getList = function(req, res) {
+  console.log('getList');
+
   var key = req.param('key');
   if (!key || listTypes.indexOf(key) < 0) {
     return res.json({success: false, result: "Key missing or invalid key."});
   }
 
-  var cars = mockAllCars();
-  var query = buildQuery(req);
+  var cars = mockAllCars().result;
+  var query = buildQuery(req, res);
+  if (!query) return;
   cars = runQuery(query, cars);
 
   var list = _.uniq(_.pluck(cars, key));
@@ -60,15 +67,22 @@ exports.getList = function(req, res) {
 
 
 
-function buildQuery (req) {
+function buildQuery (req, res) {
+  console.log('buildQuery');
+
   var query = {};
   possQueryKeys.forEach(function (keyName) {
     var value = req.param(keyName);
     if (!value && value !== 0) return;
 
-    var check = checkValueValidity(value, keyName);
-    if (!check.success) {
-      return res.json({success: false, result: check.msg});
+    if ( !valueIsValid(value, keyName) ) {
+      res.json({success: false, result: 'value provided is not valid'});
+      return false;
+    }
+
+    var type = queryParameters[keyName];
+    if ( (type === 'Integer' || type === 'Number') && _.isString(value) ) {
+      value = parseFloat(value);
     }
 
     query[keyName] = value;
@@ -77,8 +91,10 @@ function buildQuery (req) {
 }
 
 
-function checkValueValidity(value, keyName) {
-  switch(queryParameters[key]) {
+function valueIsValid(value, keyName) {
+  console.log('checkValueValidity');
+
+  switch(queryParameters[keyName]) {
     case 'String':
       if ( _.isString(value) ) {
         return true;
@@ -97,13 +113,21 @@ function checkValueValidity(value, keyName) {
       break;
 
     case 'Integer':
+      if (_.isString(value)) {
+        var newValue = parseInt(value, 10);
+        if (newValue != value) { return false; }
+        value = newValue;
+      }
       return ( _.isFinite(value) && value >= 0 && parseInt(value, 10) === value);
 
     case 'Number':
+      if (_.isString(value)) {
+        value = parseFloat(value);
+      }
       return ( _.isFinite(value) && value >= 0);
 
     default:
-      console.error("checkValueValidity: forgot to define type " + queryParameters[key] + "!!!!");
+      console.error("checkValueValidity: forgot to define type "+queryParameters[keyName]+"!!!!");
   }
 }
 
@@ -118,10 +142,15 @@ var queryKeyToProperty = {
 };
 
 function runQuery (query, cars) {
+  console.log('runQuery');
+
   var queryKeys = _.keys(query);
   if (queryKeys.length === 0) {
     return cars;
   }
+
+  console.log('About to filter cars');
+  console.log('queryKeys', queryKeys);
 
   var filteredCars = cars.filter(function (car) {
     for (var i=0, l=queryKeys.length; i < l; i++) {
@@ -135,10 +164,14 @@ function runQuery (query, cars) {
         case 'transmission':
         case 'vehicle_class':
         case 'year':
+          console.log('car[key]', car[key]);
+          console.log('query[key]', query[key]);
           if (_.isString(car[key]) && car[key].toLowerCase() !== query[key].toLowerCase()) {
+            console.log('first false');
             return false;
           }
           if ( (! _.isString(car[key])) && car[key] !== query[key]) {
+            console.log('second false');
             return false;
           }
           break;
@@ -174,9 +207,10 @@ function runQuery (query, cars) {
           break;
       }
     }
+    return true;
   });
   
-  
+  return filteredCars;
 }
 
 
