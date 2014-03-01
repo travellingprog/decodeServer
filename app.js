@@ -23,6 +23,7 @@ app.configure(function(){
   app.use(express.logger('dev'));
   app.use(express.bodyParser());
   app.use(express.methodOverride());
+  app.use(allowCrossDomain);
   app.use(app.router);
   app.use(express.static(path.join(__dirname, 'public')));
 });
@@ -44,7 +45,6 @@ var allowCrossDomain = function(req, res, next) {
     next();
   }
 };
-app.use(allowCrossDomain);
 
 
 /**
