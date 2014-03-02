@@ -33,8 +33,6 @@ exports.getAllCars = function(req, res){
 };
 
 exports.getCars = function(req, res) {
-  console.log('getCars');
-
   var cars = mockAllCars().result;
   var query = buildQuery(req, res);
   if (!query) return;
@@ -45,8 +43,6 @@ exports.getCars = function(req, res) {
 
 
 exports.getList = function(req, res) {
-  console.log('getList');
-
   var key = req.param('key');
   if (!key || listTypes.indexOf(key) < 0) {
     return res.json({success: false, result: "Key missing or invalid key."});
@@ -68,8 +64,6 @@ exports.getList = function(req, res) {
 
 
 function buildQuery (req, res) {
-  console.log('buildQuery');
-
   var query = {};
   possQueryKeys.forEach(function (keyName) {
     var value = req.param(keyName);
@@ -92,8 +86,6 @@ function buildQuery (req, res) {
 
 
 function valueIsValid(value, keyName) {
-  console.log('checkValueValidity');
-
   switch(queryParameters[keyName]) {
     case 'String':
       if ( _.isString(value) ) {
@@ -142,15 +134,10 @@ var queryKeyToProperty = {
 };
 
 function runQuery (query, cars) {
-  console.log('runQuery');
-
   var queryKeys = _.keys(query);
   if (queryKeys.length === 0) {
     return cars;
   }
-
-  console.log('About to filter cars');
-  console.log('queryKeys', queryKeys);
 
   var filteredCars = cars.filter(function (car) {
     for (var i=0, l=queryKeys.length; i < l; i++) {
@@ -164,14 +151,10 @@ function runQuery (query, cars) {
         case 'transmission':
         case 'vehicle_class':
         case 'year':
-          console.log('car[key]', car[key]);
-          console.log('query[key]', query[key]);
           if (_.isString(car[key]) && car[key].toLowerCase() !== query[key].toLowerCase()) {
-            console.log('first false');
             return false;
           }
           if ( (! _.isString(car[key])) && car[key] !== query[key]) {
-            console.log('second false');
             return false;
           }
           break;

@@ -54,7 +54,6 @@ function allowCrossDomain (req, res, next) {
  */
 
 var connect = function () {
-  console.log('config.db', config.db);
   var options = { server: { socketOptions: { keepAlive: 1 } } };
   mongoose.connect(config.db, options);
 };
