@@ -24,8 +24,36 @@ var CarSchema = new Schema({
   co2_emissions: Number
 });
 
-CarSchema.virtual('id').get(function() {
-    return this._id;
-});
+
+CarSchema.statics.findSame = function(obj, cb) {
+  var query = {
+    year: obj.year,
+    manufacturer: obj.manufacturer.trim(),
+    model: obj.model.trim(),
+    transmission: obj.transmission.trim()
+  };
+  this.findOne(query, cb);
+};
+
+CarSchema.statics.cleanNewData = function(obj) {
+  obj.year = parseInt(obj.year, 10);
+  if (obj.year === 2104) obj.year = 2014;
+
+  obj.engine_size = parseFloat(obj.engine_size);
+
+  if (obj.cylinders === 'R2') obj.cylinders = 0;
+  obj.cylinders = parseInt(obj.cylinders, 10);
+
+  obj.fuel_cons.city.metric = parseFloat(obj.fuel_cons.city.metric);
+  obj.fuel_cons.city.imperial = parseFloat(obj.fuel_cons.city.imperial);
+  obj.fuel_cons.highway.metric = parseFloat(obj.fuel_cons.highway.metric);
+  obj.fuel_cons.highway.imperial = parseFloat(obj.fuel_cons.highway.imperial);
+
+  obj.fuel_per_year = parseFloat(obj.fuel_per_year);
+  obj.co2_emissions = parseFloat(obj.co2_emissions);
+
+  return obj;
+};
+
 
 mongoose.model('Car', CarSchema);

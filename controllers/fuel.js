@@ -5,8 +5,8 @@
 var _ = require('lodash');
 
 var queryParameters = {
-  'co2_min': 'Integer',
-  'co2_max': 'Integer',
+  'co2_min': 'Number',
+  'co2_max': 'Number',
   'cylinders': 'Integer',
   'engine_min': 'Number',
   'engine_max': 'Number',
