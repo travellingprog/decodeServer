@@ -1,6 +1,6 @@
 # Overview
 
-This API provides information on cars in Canada produced since the year 2000. The information revolves the fuel consumption of these cars, but other information is available as well (for instance, the transmission type).
+This API provides information on cars in Canada produced since the year 2000. The information revolves the fuel consumption of these cars, but other information is available as well (for instance, the transmission type). 
 
 This project was developed as part of the AutoScout app, our team's entry in the [CODE hackathon](https://www.canadianopendataexperience.com/). As such, it is provided 'as is'.
 
@@ -8,6 +8,8 @@ You can read this documentation in the [GitHub repo](https://github.com/travelli
 
 The data behind this API is retrieved from the **Fuel Consumption Ratings** datasets published by Natural Resources Canada. These are published at the following web address:
 [http://data.gc.ca/data/en/dataset/98f1a129-f628-4ce4-b24d-6f16bf24dd64](http://data.gc.ca/data/en/dataset/98f1a129-f628-4ce4-b24d-6f16bf24dd64)
+
+**The server checks for new data every 24 hours and automatically updates when a new dataset is detected.**
 
 The data is used under the terms of the [Open Government License - Canada](http://data.gc.ca/eng/open-government-licence-canada).
 
