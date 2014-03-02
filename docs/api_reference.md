@@ -4,6 +4,8 @@ This API provides information on cars in Canada produced since the year 2000. Th
 
 This project was developed as part of the AutoScout app, our team's entry in the [CODE hackathon](https://www.canadianopendataexperience.com/). As such, it is provided 'as is'.
 
+You can read this documentation in the [GitHub repo](https://github.com/travellingprog/decodeServer/blob/master/docs/api_reference.md) (recommended) or at [http://api.getautoscout.com](http://api.getautoscout.com).
+
 The data behind this API is retrieved from the **Fuel Consumption Ratings** datasets published by Natural Resources Canada. These are published at the following web address:
 [http://data.gc.ca/data/en/dataset/98f1a129-f628-4ce4-b24d-6f16bf24dd64](http://data.gc.ca/data/en/dataset/98f1a129-f628-4ce4-b24d-6f16bf24dd64)
 
@@ -21,7 +23,7 @@ The API data can also be retrieved by using [http://api.getautoscout.com](http:/
 
 This API only accepts **GET** requests.
 
-You can send the parameters as URL parameters, as shown below, or as an object inside the form-data header (aka the *data* argument for jQuery's $.get() method).
+You can send the parameters as URL parameters, or as an object inside the form-data header (aka the *data* argument for jQuery's $.get() method).
 
 
 # Responses
