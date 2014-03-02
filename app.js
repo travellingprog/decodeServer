@@ -104,6 +104,7 @@ app.get('/users', user.list);
 app.get('/fuel/all', fuel.getAllCars);
 app.get('/fuel/cars', fuel.getCars);
 app.get('/fuel/list', fuel.getList);
+app.get('/metadata', importer.getMetaData);
 
 
 

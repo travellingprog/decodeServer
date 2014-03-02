@@ -29,6 +29,16 @@ exports.checkForUpdate = function() {
 };
 
 
+exports.getMetaData = function(req, res) {
+  MetaData.find({}, function(err, result) {
+    if (err) {
+      return res.json({success: false, 'result': err});
+    }
+    return res.json({success: true, 'result': result});
+  });
+};
+
+
 function checkMetaData (statusCode, obj) {
   if (statusCode !== 200) {
     return console.log('ERROR, Importer: metadata came back with code !== 200');
