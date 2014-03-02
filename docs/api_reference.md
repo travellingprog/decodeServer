@@ -1,11 +1,13 @@
 # Requests
 
-You can send the parameters as URL parameters, like the example above, or as an object inside the form-data header (aka the *data* argument for jQuery's $.get() method).
+This API only accepts GET requests.
+
+You can send the parameters as URL parameters, as shown below, or as an object inside the form-data header (aka the *data* argument for jQuery's $.get() method).
 
 
 # Responses
 
-All responses will be JSON objects with the two fields:
+All responses will be JSON objects with these two fields:
 
 * success (boolean)
 * result (array or error message)
@@ -15,7 +17,7 @@ All responses will be JSON objects with the two fields:
 
 ####/fuel/all
 
-All cars.
+Get all cars. Expect this to take a while. At the time of writing, there were 14305 cars in the database.
 
 
 ####/fuel/cars?(parameter1)=(value1)&(parameter2)=(value2)&...
@@ -24,6 +26,7 @@ Will retrieve cars that match the query parameters given.
 
 Possible parameter keys:
 
+  - limit (integer) (**defaults to 25** for `/fuel/cars` if unspecified)
   - class (string or array of strings)
   - co2_min (integer)
   - co2_max (integer)
@@ -64,4 +67,6 @@ This would list all the possibles values for a certain parameter, restricted by 
 Essentially, this is the same as doing the `/fuel/cars` query, followed by retrieving the unique values for a certain key in the resulting cars array.
 
 
+####/metadata
 
+A brief summary of the data sources used for this API.

@@ -3,13 +3,13 @@ var mongoose = require('mongoose'),
 
 var CarSchema = new Schema({
   year: Number,
-  manufacturer: {type: String, trim: true},
-  model: {type: String, trim: true},
-  vehicle_class: {type: String, trim: true},
+  manufacturer: {type: String, trim: true, uppercase: true},
+  model: {type: String, trim: true, uppercase: true},
+  vehicle_class: {type: String, trim: true, uppercase: true},
   engine_size: Number,
   cylinders: Number,
-  transmission: {type: String, trim: true},
-  fuel_type: {type: String, trim: true},
+  transmission: {type: String, trim: true, uppercase: true},
+  fuel_type: {type: String, trim: true, uppercase: true},
   fuel_cons: {
     city: {
       metric: Number,
@@ -28,9 +28,9 @@ var CarSchema = new Schema({
 CarSchema.statics.findSame = function(obj, cb) {
   var query = {
     year: obj.year,
-    manufacturer: obj.manufacturer.trim(),
-    model: obj.model.trim(),
-    transmission: obj.transmission.trim()
+    manufacturer: obj.manufacturer.trim().toUpperCase(),
+    model: obj.model.trim().toUpperCase(),
+    transmission: obj.transmission.trim().toUpperCase()
   };
   this.findOne(query, cb);
 };

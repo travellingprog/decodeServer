@@ -2,9 +2,12 @@
  * Fuel Consumption Data
  */
 
-var _ = require('lodash');
+var _ = require('lodash'),
+    Car = require('mongoose').model('Car');
 
 var queryParameters = {
+  'key': 'String',
+  'limit': 'Integer',
   'co2_min': 'Number',
   'co2_max': 'Number',
   'cylinders': 'Integer',
@@ -28,17 +31,30 @@ var possQueryKeys = _.keys(queryParameters);
 var listTypes = ['cylinders', 'manufacturer', 'model', 'transmission', 'year', 'vehicle_class'];
 
 
-exports.getAllCars = function(req, res){
-  res.json(mockAllCars());
+exports.getAllCars = function(req, res) {
+  getAll(res, function(result) {
+    res.json({success: true, 'result': result});
+  });
 };
 
+function getAll (res, cb){
+  Car.find({}, function(err, result) {
+    if (err) {
+      return res.json({success: false, 'result': err});
+    }
+    cb(result);
+  });
+};
+
+
+
 exports.getCars = function(req, res) {
-  var cars = mockAllCars().result;
+  req.params.limit = req.param('limit') || 25;
   var query = buildQuery(req, res);
   if (!query) return;
-  var qResult = runQuery(query, cars);
-  console.log('qResult', qResult);
-  res.json({success: true, result: qResult});
+  runQuery(query, res, function(qResult) {
+    res.json({success: true, result: qResult});
+  });
 };
 
 
@@ -48,26 +64,26 @@ exports.getList = function(req, res) {
     return res.json({success: false, result: "Key missing or invalid key."});
   }
 
-  var cars = mockAllCars().result;
   var query = buildQuery(req, res);
   if (!query) return;
-  cars = runQuery(query, cars);
-
-  var list = _.uniq(_.pluck(cars, key));
-  list.sort(function(a, b) {
-    return a < b;
+  runQuery(query, res, function(list) {
+    list.sort(function(a, b) {
+      if (a < b) return -1;
+      if (a > b) return 1;
+      return 0;
+    });
+    res.json({success: true, result: list});
   });
-
-  res.json({success: true, result: list});
 };
 
 
 
 function buildQuery (req, res) {
   var query = {};
-  possQueryKeys.forEach(function (keyName) {
+  for (var i=0, l=possQueryKeys.length; i < l; i++) {
+    var keyName = possQueryKeys[i];
     var value = req.param(keyName);
-    if (!value && value !== 0) return;
+    if (!value && value !== 0) continue;
 
     if ( !valueIsValid(value, keyName) ) {
       res.json({success: false, result: 'value provided is not valid'});
@@ -80,7 +96,8 @@ function buildQuery (req, res) {
     }
 
     query[keyName] = value;
-  });
+  }
+
   return query;
 }
 
@@ -130,146 +147,73 @@ var queryKeyToProperty = {
   'engine_min': 'engine_size',
   'engine_max': 'engine_size',
   'year_min': 'year',
-  'year_max': 'year'
+  'year_max': 'year',
+  'city_min': 'fuel_cons.city.metric',
+  'city_max': 'fuel_cons.city.metric',
+  'highway_min': 'fuel_cons.highway.metric',
+  'highway_max': 'fuel_cons.highway.metric'
 };
 
-function runQuery (query, cars) {
+
+function runQuery (query, res, cb) {
   var queryKeys = _.keys(query);
   if (queryKeys.length === 0) {
-    return cars;
+    getAll(res, cb);
+    return;
   }
 
-  var filteredCars = cars.filter(function (car) {
-    for (var i=0, l=queryKeys.length; i < l; i++) {
-      
-      var key = queryKeys[i];
-      switch (key) {
-        case 'cylinders':
-        case 'fuel_type':
-        case 'manufacturer':
-        case 'model':
-        case 'transmission':
-        case 'vehicle_class':
-        case 'year':
-          if (_.isString(car[key]) && car[key].toLowerCase() !== query[key].toLowerCase()) {
-            return false;
-          }
-          if ( (! _.isString(car[key])) && car[key] !== query[key]) {
-            return false;
-          }
-          break;
+  var cond = Car.find();
 
-        case 'co2_min':
-        case 'engine_min':
-        case 'year_min':
-          var prop = car[queryKeyToProperty[key]];
-          if (prop < query[key]) { return false; }
-          break;
+  for (var i=0, l=queryKeys.length; i < l; i++) {
+    var key = queryKeys[i];
+    switch (key) {
+      case 'key':
+        cond = cond.distinct(query[key]);
+        break;
 
-        case 'co2_max':
-        case 'engine_max':
-        case 'year_max':
-          prop = car[queryKeyToProperty[key]];
-          if (prop > query[key]) { return false; }
-          break;
+      case 'limit':
+        cond = cond.limit(query[key]);
+        break;
 
-        case 'city_min':
-          if (car.fuel_cons.city.metric < query[key]) { return false; }
-          break;
+      case 'cylinders':
+      case 'year':
+        cond = cond.where(key, query[key]);
+        break;
 
-        case 'city_max':
-          if (car.fuel_cons.city.metric > query[key]) { return false; }
-          break;
+      case 'fuel_type':
+      case 'manufacturer':
+      case 'model':
+      case 'transmission':
+      case 'vehicle_class':
+        cond = cond.where(key, query[key].toUpperCase());
+        break;
 
-        case 'highway_min':
-          if (car.fuel_cons.highway.metric < query[key]) { return false; }
-          break;
+      case 'co2_min':
+      case 'engine_min':
+      case 'year_min':
+      case 'city_min':
+      case 'highway_min':
+        var prop = queryKeyToProperty[key];
+        cond = cond.gte(prop, query[key]);
+        break;
 
-        case 'highway_max':
-          if (car.fuel_cons.highway.metric > query[key]) { return false; }
-          break;
-      }
+      case 'co2_max':
+      case 'engine_max':
+      case 'year_max':
+      case 'city_max':
+      case 'highway_max':
+        var prop = queryKeyToProperty[key];
+        cond = cond.lte(prop, query[key]);
+        break;
     }
-    return true;
+  }
+
+  cond.exec(function (err, qResult) {
+    if (err)  {
+      res.json({success: false, result: err});
+      return console.error('ERROR, Fuel: Problem running the query. ' + err);
+    }
+    cb(qResult);
   });
-  
-  return filteredCars;
 }
 
-
-function mockAllCars() {
-  return {
-    "success": true,
-    "result": [
-      {
-        "_id": "mock00001",
-        "year": 2014,
-        "manufacturer": "Acura",
-        "model": "ILX",
-        "vehicle_class": "compact",
-        "engine_size": 2,
-        "cylinders": 4,
-        "transmission": "AS5",
-        "fuel_type": "Z",
-        "fuel_cons": {
-          "city": {
-            "metric": 8.6,
-            "imperial": 33
-          },
-          "highway": {
-            "metric": 5.6,
-            "imperial": 50
-          }
-        },
-        "fuel_per_year": 1440,
-        "co2_emissions": 166
-      },
-      {
-        "_id": "mock00002",
-        "year": 2000,
-        "manufacturer": "Volvo",
-        "model": "V70R AWD TURBO",
-        "vehicle_class": "station wagon",
-        "engine_size": 2.4,
-        "cylinders": 5,
-        "transmission": "A5",
-        "fuel_type": "Z",
-        "fuel_cons": {
-          "city": {
-            "metric": 13.1,
-            "imperial": 22
-          },
-          "highway": {
-            "metric": 9.2,
-            "imperial": 31
-          }
-        },
-        "fuel_per_year": 2269,
-        "co2_emissions": 5219
-      },
-      {
-        "_id": "mock00003",
-        "year": 2005,
-        "manufacturer": "Porsche",
-        "model": "TARGA KIT",
-        "vehicle_class": "subcompact",
-        "engine_size": 3.6,
-        "cylinders": 6,
-        "transmission": "AS5",
-        "fuel_type": "Z",
-        "fuel_cons": {
-          "city": {
-            "metric": 13,
-            "imperial": 22
-          },
-          "highway": {
-            "metric": 8.4,
-            "imperial": 34
-          }
-        },
-        "fuel_per_year": 2179,
-        "co2_emissions": 5012
-      }
-    ]
-  };
-}

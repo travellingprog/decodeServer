@@ -1,10 +1,9 @@
 
 /**
- * Module dependencies.
+ * Core module dependencies.
  */
 
 var express = require('express'),
-    fuel = require('./controllers/fuel'),
     user = require('./controllers/user'),
     http = require('http'),
     path = require('path'),
@@ -93,6 +92,7 @@ function updateMetaData() {
 }
 updateMetaData();
 
+var fuel = require('./controllers/fuel');
 
 
 /**
