@@ -4,7 +4,7 @@ var mongoose = require('mongoose'),
 var MetaDataSchema = new Schema({
   id: {type: String, trim: true },
   name: {type: String, trim: true },
-  revision_timestamp: Date,
+  revision_timestamp: Number,
   url: {type: String, trim: true },
 });
 

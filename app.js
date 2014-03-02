@@ -82,6 +82,18 @@ require('./models/car');
 require('./models/metadata');
 
 
+/**
+ * Get Data
+ */
+
+var importer = require('./controllers/importer');
+function updateMetaData() {
+  importer.checkForUpdate();
+  setTimeout(updateMetaData, 24*60*60*1000);  // check for update once a day
+}
+updateMetaData();
+
+
 
 /**
 * Routes
