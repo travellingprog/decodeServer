@@ -7,7 +7,9 @@ var express = require('express'),
     fuel = require('./controllers/fuel'),
     user = require('./controllers/user'),
     http = require('http'),
-    path = require('path');
+    path = require('path'),
+    config = require('./config'),
+    mongoose = require('mongoose');
 
 var app = express();
 
@@ -51,11 +53,40 @@ function allowCrossDomain (req, res, next) {
  * Connect MongoDB
  */
 
+var connect = function () {
+  console.log('config.db', config.db);
+  var options = { server: { socketOptions: { keepAlive: 1 } } };
+  mongoose.connect(config.db, options);
+};
+connect();
+
+// Error handler
+mongoose.connection.on('error', function (err) {
+  console.log(err);
+});
+
+// Reconnect when closed
+mongoose.connection.on('disconnected', function () {
+  connect();
+});
+
+mongoose.connection.on('connected', function () {
+  console.log('successful DB connection');
+});
 
 
- /**
- * Routes
+/**
+ * Models
  */
+
+require('./models/car');
+require('./models/metadata');
+
+
+
+/**
+* Routes
+*/
 
 app.get('/users', user.list);
 
