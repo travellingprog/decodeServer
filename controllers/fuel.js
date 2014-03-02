@@ -185,7 +185,20 @@ function runQuery (query, res, cb) {
       case 'model':
       case 'transmission':
       case 'vehicle_class':
-        cond = cond.where(key, query[key].toUpperCase());
+        // Need to match to an array of strings ...
+        if ( _.isString(query[key]) && (/^\[.*\]$/).test(query[key])) {
+          query[key] = decodeURIComponent(query[key]);
+          query[key] = query[key].match(/[\w]*/g);
+          query[key] = query[key].map(function (item) { return item.toUpperCase(); });
+        }
+        if ( _.isArray(query[key]) ) {
+          cond = cond.in(key, query[key]);
+        }
+
+        // ... or we just need to match to a single string
+        else {
+          cond = cond.where(key, query[key].toUpperCase());  
+        }
         break;
 
       case 'co2_min':

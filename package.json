@@ -11,7 +11,8 @@
     "lodash": "~2.4.1",
     "mongoose": "~3.8.8",
     "csv": "~0.3.7",
-    "request": "~2.34.0"
+    "request": "~2.34.0",
+    "marked-engine": "~0.1.0"
   },
   "devDependencies": {
     "grunt": "~0.4.1",

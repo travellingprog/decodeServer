@@ -1,6 +1,24 @@
+# Overview
+
+,
+This project was developed as part of the AutoScout app, our team's entry in the [CODE hackathon](https://www.canadianopendataexperience.com/). As such, it is provided 'as is'.
+
+The data behind this API is retrieved from the **Fuel Consumption Ratings** datasets published by Natural Resources Canada. These are published at the following web address:
+http://data.gc.ca/data/en/dataset/98f1a129-f628-4ce4-b24d-6f16bf24dd64
+
+The data is used under the terms of the [Open Government License - Canada](http://data.gc.ca/eng/open-government-licence-canada).
+
+
+# Use
+
+The API is currently hosted at **http://young-stream-4848.herokuapp.com**. This is the hostname that applications should use to connect to the API.
+
+The API data can also be retrieved by using **http://api.getautoscout.com** as the host name. However, because we are simply forwarding the request to the Heroku address given above, using this address within an application will likely result in an *Access-Control-Allow-Origin* error.
+
+
 # Requests
 
-This API only accepts GET requests.
+This API only accepts **GET** requests.
 
 You can send the parameters as URL parameters, as shown below, or as an object inside the form-data header (aka the *data* argument for jQuery's $.get() method).
 
@@ -15,38 +33,145 @@ All responses will be JSON objects with these two fields:
 
 # Paths
 
-####/fuel/all
+### GET /fuel/all
 
-Get all cars. Expect this to take a while. At the time of writing, there were 14305 cars in the database.
+Get all cars. Expect this to take a while. At the time of writing, there were 14305 cars in the database. **PLEASE use this method sparingly**.
+
+**jQuery example**:
+
+    var host = 'http://young-stream-4848.herokuapp.com';
+
+    $.get(host + '/fuel/all', function (response) {
+      $(body).text(JSON.stringify(response));
+    });
+
+**Response:**
+
+    {
+      success: true,
+      result: [
+        {
+          year: 2014,
+          manufacturer: "HONDA",
+          model: "CIVIC",
+          vehicle_class: "COMPACT",
+          engine_size: 1.8,
+          cylinders: 4,
+          transmission: "M5",
+          fuel_type: "X",
+          fuel_per_year: 1300,
+          co2_emissions: 150,
+          _id: "5312e21d84549a6c013a96c8",
+          __v: 0,
+          fuel_cons: {
+            highway: {
+              metric: 5.5,
+              imperial: 51
+            },
+            city: {
+              metric: 7.3,
+              imperial: 39
+            }
+          }
+        },
+        // ... many more cars
+      ]
+    }
 
 
-####/fuel/cars?(parameter1)=(value1)&(parameter2)=(value2)&...
+### GET /fuel/cars?(parameter1)=(value1)&(parameter2)=(value2)&...
 
 Will retrieve cars that match the query parameters given. 
 
 Possible parameter keys:
 
-  - limit (integer) (**defaults to 25** for `/fuel/cars` if unspecified)
-  - class (string or array of strings)
-  - co2_min (integer)
-  - co2_max (integer)
-  - cylinders (integer)
-  - engine_min (number)
-  - engine_max (number)
-  - city_min (number) (provide metric value)
-  - city_max (number) (provide metric value)
-  - highway_min (number) (provide metric value)
-  - highway_max (number) (provide metric value)
-  - fuel_type (string or array of strings)
-  - manufacturer (string or array of strings)
-  - model (string or array of strings)
-  - transmission (string or array of strings)
-  - year (integer)
-  - year_min (integer)
-  - year_max (integer)
+- **limit**: *integer.* The maximum amount of results that you wish to retrieve. If unspecified, **defaults to 25 for `/fuel/cars`** (this parameter can also be used with `/fuel/list`, see below).
+
+- **class**: *string or array of strings*  The class of the vehicle (e.g. "subcompact").
+
+- **co2_min**: *number* Filter out any vehicles with annual co2 emissions (in kg) below this value.
+
+- **co2_max**: *number* Filter out any vehicles with annual co2 emissions (in kg) above this value.
+
+- **cylinders**: *integer* The number of cylinders that the vehicle must have. For cars with rotary engines, this value is zero.
+
+- **engine_min**: *number* Filter out any vehicles with engine sizes (in L) below this value.
+
+- **engine_max**: *number* Filter out any vehicles with engine sizes (in L) above this value.
+
+- **city_min**: *number*  Filter out any vehicles with city-rated fuel consumption (in L per 100 km) below this value.
+
+- **city_max**: *number* Filter out any vehicles with city-rated fuel consumption (in L per 100 km) above this value.
+
+- **highway_min**: *number* Filter out any vehicles with highway-rated fuel consumption (in L per 100 km) below this value.
+
+- **highway_max**: *number* Filter out any vehicles with highway-rated fuel consumption (in L per 100 km) above this value.
+
+- **fuel_type**: *string or array of strings* The fuel type for this vehicle. X = Regular gasoline;  Z = Premium gasoline;  D = Diesel;  E = E85;  B = Electricity.
+
+- **manufacturer**: *string or array of strings* The manufacturer of this vehicle (e.g. 'Honda').
+
+- **model**: *string or array of strings* The model of this vehicle (e.g. 'Civic').
+
+- **transmission**: *string or array of strings* The type of the tranmission. A = Automatic;  AM = Automated manual;  AS = Automatic with select shift;  AV = Continuously variable;
+Mn = Manual;  n = Number of gears/speeds (1-8) (e.g "M6")
+
+- **year**: *integer* The production year of this vehicle.
+
+- **year_min**: *integer* Filter out any vehicles with a production year below this value.
+
+- **year_max**: *integer* Filter out any vehicles with a production year below this value.
+
+**View in browser**:
+[Link](http://young-stream-4848.herokuapp.com/fuel/cars?fuel_type=X&year_min=2010&city_max=9&limit=2)
 
 
-####/fuel/list?key=(parameterName)
+**jQuery example**:
+
+    var host = 'http://young-stream-4848.herokuapp.com';
+    var data = {
+      fuel_type: ['X','D'],
+      
+    }
+
+    $.get(host + '/metadata', function (response) {
+      $(body).text(JSON.stringify(response));
+    });
+
+
+**Response:**
+
+    {
+      success: true,
+      result: [
+        {
+          _id: "5312a49130bf65b3f89c77e0",
+          id: "40c0aad2-122c-4b73-9b38-8e54f3a6164e",
+          name: "Fuel Consumption Ratings - 2013",
+          revision_timestamp: 1390335008067,
+          url: "http://oee.nrcan.gc.ca/sites/oee.nrcan.gc.ca/files/files/csv/MY2013-Fuel-Consumption-Ratings.csv"
+        },
+        {
+          _id: "5312a49130bf65b3f89c77e1",
+          id: "0dd9fede-8a81-47d6-a5fc-ffda84dcebc6",
+          name: "Fuel Consumption Ratings - 2012",
+          revision_timestamp: 1390335008067,
+          url: "http://oee.nrcan.gc.ca/sites/oee.nrcan.gc.ca/files/files/csv/MY2012-Fuel-Consumption-Ratings.csv"
+        },
+        {
+          _id: "5312a49130bf65b3f89c77e2",
+          id: "50d96562-8460-445c-b0f6-d0156ebcad07",
+          name: "Fuel Consumption Ratings - 2007",
+          revision_timestamp: 1390335008067,
+          url: "http://oee.nrcan.gc.ca/sites/oee.nrcan.gc.ca/files/files/csv/MY2007-Fuel-Consumption-Ratings.csv"
+        },
+        // ... more data source metadata
+      ]
+    }
+
+
+
+### GET /fuel/list?key=(parameterName)
 
 Will list all the possible values for a certain parameter key.
 
@@ -59,14 +184,103 @@ Possible parameter names:
   - transmission
   - year
 
+**View in browser**:
+[Link](http://young-stream-4848.herokuapp.com/fuel/list?key=manufacturer)
 
-####/fuel/list?key=(parameterName)&(parameter1)=(value1)&(parameter2)=(value2)
+
+**jQuery example**:
+
+    var host = 'http://young-stream-4848.herokuapp.com';
+    var data = {key: 'manufacturer'};
+
+    $.get(host + '/fuel/list', data, function (response) {
+      $(body).text(JSON.stringify(response));
+    });
+
+
+**Response**:
+
+    {
+      success: true,
+      result: [
+        "ACURA",
+        "ASTON MARTIN",
+        "AUDI",
+        "BENTLEY",
+        "BMW",
+        "BUGATTI",
+        "BUICK",
+        "CADILLAC",
+        "CHEVROLET",
+        "CHRYSLER",
+        "DAEWOO",
+        "DODGE",
+        "FERRARI",
+        "FIAT",
+        "FORD",
+        "GMC",
+        "HONDA",
+        "HUMMER",
+        "HYUNDAI",
+        "INFINITI",
+        "ISUZU",
+        // ... the rest of the manufacturers
+      ]
+    }
+
+
+
+### GET /fuel/list?key=(parameterName)&(parameter1)=(value1)&(parameter2)=(value2)
 
 This would list all the possibles values for a certain parameter, restricted by other parameter values.
 
 Essentially, this is the same as doing the `/fuel/cars` query, followed by retrieving the unique values for a certain key in the resulting cars array.
 
 
-####/metadata
 
-A brief summary of the data sources used for this API.
+### GET /metadata
+
+A brief summary of the data sources used by the API.
+
+**View in browser**:
+[Link](http://young-stream-4848.herokuapp.com/metadata)
+
+
+**jQuery example**:
+
+    var host = 'http://young-stream-4848.herokuapp.com';
+
+    $.get(host + '/metadata', function (response) {
+      $(body).text(JSON.stringify(response));
+    });
+
+
+**Response:**
+
+    {
+      success: true,
+      result: [
+        {
+          _id: "5312a49130bf65b3f89c77e0",
+          id: "40c0aad2-122c-4b73-9b38-8e54f3a6164e",
+          name: "Fuel Consumption Ratings - 2013",
+          revision_timestamp: 1390335008067,
+          url: "http://oee.nrcan.gc.ca/sites/oee.nrcan.gc.ca/files/files/csv/MY2013-Fuel-Consumption-Ratings.csv"
+        },
+        {
+          _id: "5312a49130bf65b3f89c77e1",
+          id: "0dd9fede-8a81-47d6-a5fc-ffda84dcebc6",
+          name: "Fuel Consumption Ratings - 2012",
+          revision_timestamp: 1390335008067,
+          url: "http://oee.nrcan.gc.ca/sites/oee.nrcan.gc.ca/files/files/csv/MY2012-Fuel-Consumption-Ratings.csv"
+        },
+        {
+          _id: "5312a49130bf65b3f89c77e2",
+          id: "50d96562-8460-445c-b0f6-d0156ebcad07",
+          name: "Fuel Consumption Ratings - 2007",
+          revision_timestamp: 1390335008067,
+          url: "http://oee.nrcan.gc.ca/sites/oee.nrcan.gc.ca/files/files/csv/MY2007-Fuel-Consumption-Ratings.csv"
+        },
+        // ... more data source metadata
+      ]
+    }

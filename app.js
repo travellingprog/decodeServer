@@ -17,9 +17,9 @@ var app = express();
  */
 
 app.configure(function(){
+  app.engine('md', require('marked-engine').renderFile);
   app.set('port', process.env.PORT || 3000);
-  app.set('views', __dirname + '/views');
-  app.set('view engine', 'jade');
+  app.set('views', __dirname + '/docs');
   app.use(express.favicon());
   app.use(express.logger('dev'));
   app.use(express.bodyParser());
@@ -101,6 +101,10 @@ var fuel = require('./controllers/fuel');
 
 app.get('/users', user.list);
 
+
+app.get('/', function(req, res) {
+  res.render('api_reference.md');
+});
 app.get('/fuel/all', fuel.getAllCars);
 app.get('/fuel/cars', fuel.getCars);
 app.get('/fuel/list', fuel.getList);
